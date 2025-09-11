@@ -1,0 +1,79 @@
+body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f8fafc; /* slate-50 */
+            color: #1f2937; /* gray-800 */
+        }
+        .page-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .page-content.active {
+            display: block;
+        }
+        .nav-link.active .link-text {
+            color: #0ea5e9;
+            font-weight: 600;
+        }
+        .nav-link.active .link-underline {
+            transform: scaleX(1);
+        }
+        header {
+            z-index: 50;
+            background-color: #ffffff;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        table th, table td {
+            text-align: center;
+        }
+        .chart-container {
+            margin-top: 2rem;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Unified Color Scheme */
+        .bg-white {
+            background-color: #ffffff;
+            border-color: #e2e8f0; /* slate-200 */
+        }
+        .bg-slate-50 {
+            background-color: #f8fafc;
+        }
+        .bg-slate-100 {
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        .text-gray-900 {
+            color: #111827;
+        }
+        .text-gray-600 {
+            color: #4b5563;
+        }
+        .text-gray-500 {
+            color: #6b7280;
+        }
+        table tbody tr:hover {
+            background-color: #f0f9ff; /* sky-50 */
+        }
+        .bg-gradient-to-br {
+            background-image: linear-gradient(to bottom right, #ffffff, #f0f9ff);
+        }
+        input, select {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+            color: #111827;
+        }
+        .animate-pulse-once {
+            animation: pulse-once 2s ease-in-out;
+        }
+        @keyframes pulse-once {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.01); }
+            100% { transform: scale(1); }
+        }
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
