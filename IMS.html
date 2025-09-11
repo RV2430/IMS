@@ -1,0 +1,504 @@
+<script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Confirmation Modal -->
+<div id="confirmation-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-white rounded-2xl p-8 shadow-xl max-w-sm w-full">
+        <h3 id="modal-title" class="text-xl font-bold text-gray-900 mb-4">Confirm Action</h3>
+        <p id="modal-message" class="text-gray-600 mb-6"></p>
+        <div class="flex justify-end space-x-4">
+            <button id="modal-cancel" class="px-6 py-2 rounded-xl text-gray-600 border border-gray-300 hover:bg-gray-50 transition-colors">Cancel</button>
+            <button id="modal-confirm" class="px-6 py-2 rounded-xl text-white bg-red-600 hover:bg-red-700 transition-colors">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Display Name Modal -->
+<div id="display-name-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-white rounded-2xl p-8 shadow-xl max-w-sm w-full">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 text-center">Set Your Display Name</h3>
+        <p class="text-gray-600 mb-6 text-center">This name will be shown in the activity log for all users.</p>
+        <form id="display-name-form" class="space-y-4">
+            <input type="text" id="display-name-input" placeholder="Your Name" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all" required>
+            <button type="submit" class="w-full px-4 py-3 bg-sky-600 text-white font-semibold rounded-xl hover:bg-sky-700 transition-colors">Save Name</button>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Stock Item Modal -->
+<div id="edit-stock-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-white rounded-2xl p-8 shadow-xl max-w-lg w-full">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Edit Stock Item</h3>
+        <form id="edit-stock-form" class="space-y-4">
+            <input type="hidden" id="edit-stock-id">
+            <div>
+                <label for="edit-itemName" class="block text-sm font-medium text-gray-700">Item Name</label>
+                <input type="text" id="edit-itemName" name="itemName" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3" required>
+            </div>
+            <div>
+                <label for="edit-itemCategory" class="block text-sm font-medium text-gray-700">Category</label>
+                <input type="text" id="edit-itemCategory" name="itemCategory" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3">
+            </div>
+            <div>
+                <label for="edit-itemType" class="block text-sm font-medium text-gray-700">Type</label>
+                <select id="edit-itemType" name="itemType" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3">
+                    <option value="New">New</option>
+                    <option value="Used">Used</option>
+                </select>
+            </div>
+            <div>
+                <label for="edit-itemVendor" class="block text-sm font-medium text-gray-700">Vendor</label>
+                <select id="edit-itemVendor" name="itemVendor" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3"></select>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="edit-itemQuantity" class="block text-sm font-medium text-gray-700">Quantity</label>
+                    <input type="number" id="edit-itemQuantity" name="itemQuantity" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3" required min="0">
+                </div>
+                <div>
+                    <label for="edit-itemUnit" class="block text-sm font-medium text-gray-700">Unit</label>
+                    <select id="edit-itemUnit" name="itemUnit" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3">
+                        <option value="pcs">pieces</option>
+                        <option value="kg">kg</option>
+                        <option value="m">m</option>
+                        <option value="l">L</option>
+                        <option value="g">g</option>
+                        <option value="mm">mm</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label for="edit-itemPrice" class="block text-sm font-medium text-gray-700">Price per Unit</label>
+                <input type="number" id="edit-itemPrice" name="itemPrice" step="0.01" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3" required min="0">
+            </div>
+            <div>
+                <label for="edit-itemMinStock" class="block text-sm font-medium text-gray-700">Minimum Stock</label>
+                <input type="number" id="edit-itemMinStock" name="itemMinStock" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3" required min="0">
+            </div>
+            <div class="flex justify-end space-x-4">
+                <button type="button" id="edit-stock-cancel" class="px-6 py-2 rounded-xl text-gray-600 border border-gray-300 hover:bg-gray-50 transition-colors">Cancel</button>
+                <button type="submit" class="px-6 py-2 rounded-xl text-white bg-sky-600 hover:bg-sky-700 transition-colors">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Vendor Modal -->
+<div id="edit-vendor-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-white rounded-2xl p-8 shadow-xl max-w-lg w-full">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Edit Vendor</h3>
+        <form id="edit-vendor-form" class="space-y-4">
+            <input type="hidden" id="edit-vendor-id">
+            <div>
+                <label for="edit-vendorName" class="block text-sm font-medium text-gray-700">Vendor Name</label>
+                <input type="text" id="edit-vendorName" name="vendorName" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3" required>
+            </div>
+            <div>
+                <label for="edit-contactPerson" class="block text-sm font-medium text-gray-700">Contact Person</label>
+                <input type="text" id="edit-contactPerson" name="contactPerson" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3">
+            </div>
+            <div>
+                <label for="edit-contactEmail" class="block text-sm font-medium text-gray-700">Contact Email</label>
+                <input type="email" id="edit-contactEmail" name="contactEmail" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3">
+            </div>
+            <div class="flex justify-end space-x-4">
+                <button type="button" id="edit-vendor-cancel" class="px-6 py-2 rounded-xl text-gray-600 border border-gray-300 hover:bg-gray-50 transition-colors">Cancel</button>
+                <button type="submit" class="px-6 py-2 rounded-xl text-white bg-sky-600 hover:bg-sky-700 transition-colors">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="login-page" class="page-content active">
+    <div class="flex items-center justify-center min-h-screen bg-slate-50">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center">
+            <h1 class="text-3xl font-bold text-gray-900 mb-6" id="auth-title">Log in to IMS</h1>
+            
+            <div id="login-section">
+                <form id="login-form" class="space-y-4">
+                    <input type="email" id="login-email" placeholder="Email" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all" required>
+                    <input type="password" id="login-password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all" required>
+                    <button type="submit" class="w-full px-4 py-3 bg-sky-600 text-white font-semibold rounded-xl hover:bg-sky-700 transition-colors">Log In</button>
+                </form>
+                <button id="switch-to-signup" class="mt-4 text-sm text-gray-600 hover:text-sky-600 transition-colors">Don't have an account? Sign up</button>
+            </div>
+
+            <div id="signup-section" class="hidden">
+                <form id="signup-form" class="space-y-4">
+                    <input type="email" id="signup-email" placeholder="Email" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all" required>
+                    <input type="password" id="signup-password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all" required>
+                    <button type="submit" class="w-full px-4 py-3 bg-sky-600 text-white font-semibold rounded-xl hover:bg-sky-700 transition-colors">Sign Up</button>
+                </form>
+                <button id="switch-to-login" class="mt-4 text-sm text-gray-600 hover:text-sky-600 transition-colors">Already have an account? Log in</button>
+            </div>
+
+            <p class="text-gray-500 my-4">or</p>
+            <button id="anonymous-login-button" class="w-full px-4 py-3 border border-gray-300 text-gray-800 font-semibold rounded-xl hover:bg-gray-50 transition-colors">Continue Anonymously</button>
+            
+            <p id="login-error" class="text-red-500 text-sm mt-4"></p>
+        </div>
+    </div>
+</div>
+
+<div id="main-app" class="hidden">
+    <header class="shadow-sm sticky top-0 transition-shadow duration-300">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="#home" class="flex-shrink-0">
+                    <span class="text-3xl font-extrabold text-sky-600">IMS</span>
+                </a>
+                <div class="hidden md:flex space-x-6">
+                    <a href="#home" class="nav-link text-gray-600 hover:text-sky-600 transition-colors font-medium relative group" data-page="home-page">
+                        <span class="link-text">Home</span>
+                        <span class="link-underline absolute bottom-0 left-0 w-full h-0.5 bg-sky-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                    </a>
+                    <a href="#dashboard" class="nav-link text-gray-600 hover:text-sky-600 transition-colors font-medium relative group" data-page="dashboard-page">
+                        <span class="link-text">Dashboard</span>
+                        <span class="link-underline absolute bottom-0 left-0 w-full h-0.5 bg-sky-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                    </a>
+                    <a href="#stock-details" class="nav-link text-gray-600 hover:text-sky-600 transition-colors font-medium relative group" data-page="stock-details-page">
+                        <span class="link-text">Stock Details</span>
+                        <span class="link-underline absolute bottom-0 left-0 w-full h-0.5 bg-sky-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                    </a>
+                    <a href="#add-new-stock" class="nav-link text-gray-600 hover:text-sky-600 transition-colors font-medium relative group" data-page="add-new-stock-page">
+                        <span class="link-text">Add New Stock</span>
+                        <span class="link-underline absolute bottom-0 left-0 w-full h-0.5 bg-sky-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                    </a>
+                    <a href="#use-stock" class="nav-link text-gray-600 hover:text-sky-600 transition-colors font-medium relative group" data-page="use-stock-page">
+                        <span class="link-text">Use Stock</span>
+                        <span class="link-underline absolute bottom-0 left-0 w-full h-0.5 bg-sky-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                    </a>
+                    <a href="#used-stock" class="nav-link text-gray-600 hover:text-sky-600 transition-colors font-medium relative group" data-page="used-stock-page">
+                        <span class="link-text">Used Stock</span>
+                        <span class="link-underline absolute bottom-0 left-0 w-full h-0.5 bg-sky-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                    </a>
+                    <a href="#vendors" class="nav-link text-gray-600 hover:text-sky-600 transition-colors font-medium relative group" data-page="vendors-page">
+                        <span class="link-text">Vendors</span>
+                        <span class="link-underline absolute bottom-0 left-0 w-full h-0.5 bg-sky-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                    </a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span id="user-display" class="bg-gray-100 text-gray-800 text-sm font-medium py-2 px-4 rounded-full shadow-inner"></span>
+                <button id="logout-button" class="px-4 py-2 text-sm font-medium text-red-600 rounded-lg shadow-sm hover:bg-red-50 transition-colors">Log Out</button>
+                <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none p-2 rounded-md">
+                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="md:hidden bg-white shadow-md absolute top-full left-0 w-full py-2 hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#home" class="nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-sky-600 hover:bg-gray-50" data-page="home-page">Home</a>
+                <a href="#dashboard" class="nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-sky-600 hover:bg-gray-50" data-page="dashboard-page">Dashboard</a>
+                <a href="#stock-details" class="nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-sky-600 hover:bg-gray-50" data-page="stock-details-page">Stock Details</a>
+                <a href="#add-new-stock" class="nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-sky-600 hover:bg-gray-50" data-page="add-new-stock-page">Add New Stock</a>
+                <a href="#use-stock" class="nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-sky-600 hover:bg-gray-50" data-page="use-stock-page">Use Stock</a>
+                <a href="#used-stock" class="nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-sky-600 hover:bg-gray-50" data-page="used-stock-page">Used Stock</a>
+                <a href="#vendors" class="nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-sky-600 hover:bg-gray-50" data-page="vendors-page">Vendors</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="home-page" class="page-content active">
+            <div class="bg-gradient-to-br from-white to-sky-50 rounded-2xl shadow-xl p-8 lg:p-12 text-center">
+                <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+                    Welcome to Your <span class="text-sky-600">Inventory Management System</span>
+                </h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed">
+                    Efficiently manage your stock, track inventory levels, and streamline your operations with our intuitive and modern platform.
+                </p>
+                <a href="#dashboard" class="nav-link inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-xl shadow-lg text-white bg-sky-600 hover:bg-sky-700 transition-colors group" data-page="dashboard-page">
+                    <span class="group-hover:translate-x-1 transition-transform duration-300">Go to Dashboard</span>
+                    <svg class="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </a>
+            </div>
+            
+            <div id="quick-insights" class="mt-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4 text-center">Quick Insights</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-gray-100">
+                        <p class="text-sm font-medium text-gray-500">Total Stock Items</p>
+                        <p class="mt-1 text-4xl font-semibold text-gray-900" id="home-total-items">0</p>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg p-6 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-gray-100">
+                        <p class="text-sm font-medium text-gray-500">Total Inventory Value</p>
+                        <p class="mt-1 text-4xl font-semibold text-gray-900" id="home-total-value">$0.00</p>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg p-6 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-gray-100">
+                        <p class="text-sm font-medium text-gray-500">Unique Categories</p>
+                        <p class="mt-1 text-4xl font-semibold text-gray-900" id="home-unique-categories">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Low Stock Alerts</h2>
+                <div id="low-stock-alerts" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 text-center border border-gray-100">
+                        <p class="text-gray-500">No low stock items. All good! 😊</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard-page" class="page-content">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">Dashboard</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-2xl shadow-lg p-6 transform transition-all duration-300 hover:scale-[1.02] hover:hover:shadow-xl border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500">Total Stock Items</p>
+                    <p class="mt-1 text-4xl font-semibold text-gray-900" id="total-items">0</p>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-6 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500">Total Inventory Value</p>
+                    <p class="mt-1 text-4xl font-semibold text-gray-900" id="total-value">$0.00</p>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-6 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500">Unique Categories</p>
+                    <p class="mt-1 text-4xl font-semibold text-gray-900" id="unique-categories">0</p>
+                </div>
+            </div>
+
+            <div class="chart-container grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border border-gray-100">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4 text-center">Stock Distribution by Category (Bar)</h3>
+                    <canvas id="category-bar-chart"></canvas>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border border-gray-100">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4 text-center">Stock Distribution by Category (Pie)</h3>
+                    <canvas id="category-pie-chart"></canvas>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border border-gray-100">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4 text-center">Low Stock Items</h3>
+                    <canvas id="low-stock-chart"></canvas>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col border border-gray-100">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4 text-center">Recent Activity</h3>
+                    <ul id="activity-feed" class="list-disc list-inside space-y-2">
+                        <li class="text-gray-600">No recent activity.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="stock-details-page" class="page-content">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">Stock Details</h2>
+            <div class="mb-6 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+                <input type="text" id="stock-search" placeholder="Search by item name..." class="w-full sm:w-1/3 rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3">
+                <div class="flex flex-wrap items-center justify-end gap-2">
+                    <select id="filter-category" class="rounded-xl border-gray-300 focus:ring-sky-500 focus:border-sky-500 p-2">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="filter-vendor" class="rounded-xl border-gray-300 focus:ring-sky-500 focus:border-sky-500 p-2">
+                        <option value="">All Vendors</option>
+                    </select>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" id="filter-low-stock" class="rounded text-red-600 focus:ring-red-500">
+                        <span class="text-sm font-medium text-gray-700">Low Stock Only</span>
+                    </label>
+                    <button id="download-stock-csv" class="px-4 py-2 bg-sky-600 text-white font-medium rounded-xl shadow-sm hover:bg-sky-700 transition-colors">Download CSV</button>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200" id="stockTable">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="name">Item Name</th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="category">Category</th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Actual Quantity</th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="quantity">Current Quantity</th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Min Stock</th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Created By</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="add-new-stock-page" class="page-content">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Add New Stock</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Manual Entry</h3>
+                    <form id="stockForm" class="space-y-6">
+                        <div>
+                            <label for="itemName" class="block text-sm font-medium text-gray-700">Item Name</label>
+                            <input type="text" id="itemName" name="itemName" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3" required>
+                        </div>
+                        <div>
+                            <label for="itemCategory" class="block text-sm font-medium text-gray-700">Category</label>
+                            <input type="text" id="itemCategory" name="itemCategory" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3">
+                        </div>
+                        <div>
+                            <label for="itemType" class="block text-sm font-medium text-gray-700">Type</label>
+                            <select id="itemType" name="itemType" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3">
+                                <option value="New">New</option>
+                                <option value="Used">Used</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="itemVendor" class="block text-sm font-medium text-gray-700">Vendor</label>
+                            <select id="itemVendor" name="itemVendor" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3"></select>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="itemQuantity" class="block text-sm font-medium text-gray-700">Quantity</label>
+                                <input type="number" id="itemQuantity" name="itemQuantity" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3" required min="0">
+                            </div>
+                            <div>
+                                <label for="itemUnit" class="block text-sm font-medium text-gray-700">Unit</label>
+                                <select id="itemUnit" name="itemUnit" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3">
+                                    <option value="pcs">pieces</option>
+                                    <option value="kg">kg</option>
+                                    <option value="m">m</option>
+                                    <option value="l">L</option>
+                                    <option value="g">g</option>
+                                    <option value="mm">mm</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="itemPrice" class="block text-sm font-medium text-gray-700">Price per Unit</label>
+                            <input type="number" id="itemPrice" name="itemPrice" step="0.01" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3" required min="0">
+                        </div>
+                        <div>
+                            <label for="itemMinStock" class="block text-sm font-medium text-gray-700">Minimum Stock</label>
+                            <input type="number" id="itemMinStock" name="itemMinStock" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3" value="0" required min="0">
+                        </div>
+                        <button type="submit" class="w-full sm:w-auto px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm text-white bg-sky-600 hover:bg-sky-700 transition-colors">Add Item</button>
+                    </form>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Quick Add</h3>
+                    <div id="quick-add-buttons" class="space-y-4">
+                        <button class="quick-add-btn w-full px-6 py-3 bg-sky-50 text-sky-600 rounded-xl font-medium shadow-sm hover:bg-sky-100 transition-colors" data-item-name="Screws" data-item-category="Hardware" data-item-type="New" data-item-quantity="100" data-item-price="0.05" data-item-min-stock="20" data-item-unit="pcs" data-item-vendor-id="">Add 100 Screws</button>
+                        <button class="quick-add-btn w-full px-6 py-3 bg-sky-50 text-sky-600 rounded-xl font-medium shadow-sm hover:bg-sky-100 transition-colors" data-item-name="AA Batteries" data-item-category="Electronics" data-item-type="New" data-item-quantity="50" data-item-price="1.50" data-item-min-stock="10" data-item-unit="pcs" data-item-vendor-id="">Add 50 AA Batteries</button>
+                        <button class="quick-add-btn w-full px-6 py-3 bg-sky-50 text-sky-600 rounded-xl font-medium shadow-sm hover:bg-sky-100 transition-colors" data-item-name="Light Bulbs" data-item-category="Lighting" data-item-type="New" data-item-quantity="20" data-item-price="5.00" data-item-min-stock="5" data-item-unit="pcs" data-item-vendor-id="">Add 20 Light Bulbs</button>
+                    </div>
+                    <button id="create-quick-add-btn" class="mt-4 w-full px-6 py-3 border border-sky-600 text-sky-600 rounded-xl font-medium shadow-sm hover:bg-sky-600 hover:text-white transition-colors">Create New Quick Add</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="use-stock-page" class="page-content">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Use Stock</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Log a Usage</h3>
+                    <form id="useStockForm" class="space-y-6">
+                        <div>
+                            <label for="useItemSelect" class="block text-sm font-medium text-gray-700">Select Item</label>
+                            <select id="useItemSelect" name="useItemSelect" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3"></select>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="useQuantity" class="block text-sm font-medium text-gray-700">Quantity to Use</label>
+                                <input type="number" id="useQuantity" name="useQuantity" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3" required min="1">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Current Stock</label>
+                                <p id="current-stock-info" class="mt-1 text-xl font-semibold text-gray-900">-</p>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full sm:w-auto px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm text-white bg-red-600 hover:bg-red-700 transition-colors">Use Stock</button>
+                    </form>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Recent Transactions</h3>
+                    <ul id="transaction-history" class="list-disc list-inside space-y-2">
+                        <li class="text-gray-600">No recent transactions.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="used-stock-page" class="page-content">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Used Stock Report</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-2xl shadow-lg p-6 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500">Total Items Used</p>
+                    <p class="mt-1 text-4xl font-semibold text-gray-900" id="total-used-items">0</p>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-6 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500">Total Value of Used Stock</p>
+                    <p class="mt-1 text-4xl font-semibold text-gray-900" id="total-used-value">$0.00</p>
+                </div>
+            </div>
+            <div class="mb-6 flex justify-end items-center space-x-2">
+                <input type="date" id="used-stock-date-filter" class="rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3">
+                <button id="download-used-csv" class="px-4 py-2 bg-sky-600 text-white font-medium rounded-xl shadow-sm hover:bg-sky-700 transition-colors">Download CSV</button>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200" id="usedStockTable">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity Used</th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Used On</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="vendors-page" class="page-content">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Manage Vendors</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Add a New Vendor</h3>
+                    <form id="add-vendor-form" class="space-y-6">
+                        <div>
+                            <label for="vendorName" class="block text-sm font-medium text-gray-700">Vendor Name</label>
+                            <input type="text" id="vendorName" name="vendorName" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3" required>
+                        </div>
+                        <div>
+                            <label for="contactPerson" class="block text-sm font-medium text-gray-700">Contact Person</label>
+                            <input type="text" id="contactPerson" name="contactPerson" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3">
+                        </div>
+                        <div>
+                            <label for="contactEmail" class="block text-sm font-medium text-gray-700">Contact Email</label>
+                            <input type="email" id="contactEmail" name="contactEmail" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 p-3">
+                        </div>
+                        <button type="submit" class="w-full sm:w-auto px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm text-white bg-sky-600 hover:bg-sky-700 transition-colors">Add Vendor</button>
+                    </form>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Vendor List</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="vendorsTable">
+                            <thead class="bg-slate-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor Name</th>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Person</th>
+                                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Email</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
