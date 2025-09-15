@@ -15,9 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-// Use the __app_id global variable for collaborative public data.
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-// To enable collaborative editing as you requested, the collections must be in a public path.
 const stockCollection = collection(db, `artifacts/${appId}/public/data/stock`);
 const usedStockCollection = collection(db, `artifacts/${appId}/public/data/usedStock`);
 const vendorsCollection = collection(db, `artifacts/${appId}/public/data/vendors`);
@@ -73,7 +71,7 @@ document.body.addEventListener("click", e => {
         e.preventDefault();
         const pageId = link.dataset.page;
         showPage(pageId);
-        if (pageId === "stock-details-page") displayStockData(allStockData);
+        if (pageId === "stock-details-page") applyFiltersAndSort();
         if (pageId === "dashboard-page") updateDashboard(allStockData);
         if (pageId === "use-stock-page") loadStockOptions();
         if (pageId === "used-stock-page") updateUsedStock(allUsedData);
@@ -540,8 +538,16 @@ function applyFiltersAndSort() {
     });
 
     // Apply sorting
-    const sortBy = document.querySelector('th[data-sort][data-order]').dataset.sort;
-    const sortOrder = document.querySelector('th[data-sort][data-order]').dataset.order;
+    const sortedHeader = document.querySelector('th[data-sort][data-order]');
+    let sortBy = null;
+    let sortOrder = 'asc';
+    
+    // Safely get sorting data only if the element exists
+    if (sortedHeader) {
+        sortBy = sortedHeader.dataset.sort;
+        sortOrder = sortedHeader.dataset.order;
+    }
+
     if (sortBy) {
         filteredData = [...filteredData].sort((a, b) => {
             let aValue = a[sortBy];
