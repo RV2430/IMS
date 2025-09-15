@@ -1,10 +1,18 @@
-<script src="https://cdn.tailwindcss.com"></script>
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<!-- Confirmation Modal -->
 <div id="confirmation-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
     <div class="bg-white rounded-2xl p-8 shadow-xl max-w-sm w-full">
         <h3 id="modal-title" class="text-xl font-bold text-gray-900 mb-4">Confirm Action</h3>
@@ -16,7 +24,6 @@
     </div>
 </div>
 
-<!-- Display Name Modal -->
 <div id="display-name-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
     <div class="bg-white rounded-2xl p-8 shadow-xl max-w-sm w-full">
         <h3 class="text-xl font-bold text-gray-900 mb-4 text-center">Set Your Display Name</h3>
@@ -28,7 +35,6 @@
     </div>
 </div>
 
-<!-- Edit Stock Item Modal -->
 <div id="edit-stock-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
     <div class="bg-white rounded-2xl p-8 shadow-xl max-w-lg w-full">
         <h3 class="text-xl font-bold text-gray-900 mb-4">Edit Stock Item</h3>
@@ -86,7 +92,6 @@
     </div>
 </div>
 
-<!-- Edit Vendor Modal -->
 <div id="edit-vendor-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
     <div class="bg-white rounded-2xl p-8 shadow-xl max-w-lg w-full">
         <h3 class="text-xl font-bold text-gray-900 mb-4">Edit Vendor</h3>
@@ -502,3 +507,7 @@
         </div>
     </main>
 </div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
