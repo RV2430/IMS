@@ -1135,8 +1135,16 @@ function applyFiltersAndSort() {
     });
 
     // Apply sorting
-    const sortBy = document.querySelector('th[data-sort][data-order]').dataset.sort;
-    const sortOrder = document.querySelector('th[data-sort][data-order]').dataset.order;
+    const sortedHeader = document.querySelector('th[data-sort][data-order]');
+    let sortBy = null;
+    let sortOrder = 'asc';
+    
+    // Safely get sorting data only if the element exists
+    if (sortedHeader) {
+        sortBy = sortedHeader.dataset.sort;
+        sortOrder = sortedHeader.dataset.order;
+    }
+
     if (sortBy) {
         filteredData = [...filteredData].sort((a, b) => {
             let aValue = a[sortBy];
@@ -1194,7 +1202,6 @@ document.querySelectorAll('th[data-sort]').forEach(header => {
         applyFiltersAndSort();
     });
 });
-
 // Download CSV for Stock Details
 document.getElementById('download-stock-csv').addEventListener('click', () => {
     const dataToExport = allStockData.map(({ id, createdBy, createdAt, ...rest }) => rest);
