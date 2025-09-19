@@ -1377,24 +1377,28 @@ window.deleteUsedItem = async id => {
 let lowStockChart = null;
 let categoryBarChart = null;
 let categoryPieChart = null;
-let activityFeed = null;
-function updateDashboard(data){
+let topValueChart = null;
+
+// Global variable for the full, unfiltered data
+let inventoryData = [];
+
+// Main function to update dashboard (accepts optional filtered data)
+function updateDashboard(dataToDisplay = inventoryData) {
     let totalItems = 0, totalValue = 0;
     const categories = new Set();
     const categoryCounts = {};
     const lowStockItems = [];
 
-    data.forEach(d=>{
+    // Process data
+    dataToDisplay.forEach(d => {
         totalItems += d.quantity;
         totalValue += d.quantity * d.price;
-        if(d.category) categories.add(d.category);
-        if(d.category) categoryCounts[d.category] = (categoryCounts[d.category] || 0) + d.quantity;
-        if(d.quantity <= d.minStock) {
-            lowStockItems.push(d);
-        }
+        if (d.category) categories.add(d.category);
+        if (d.category) categoryCounts[d.category] = (categoryCounts[d.category] || 0) + d.quantity;
+        if (d.quantity <= d.minStock) lowStockItems.push(d);
     });
 
-    // Update both Dashboard and Home Page cards
+    // Update Dashboard & Home cards
     document.getElementById("total-items").innerText = totalItems;
     document.getElementById("total-value").innerText = `$${totalValue.toFixed(2)}`;
     document.getElementById("unique-categories").innerText = categories.size;
@@ -1402,11 +1406,15 @@ function updateDashboard(data){
     document.getElementById("home-total-value").innerText = `$${totalValue.toFixed(2)}`;
     document.getElementById("home-unique-categories").innerText = categories.size;
 
-    // Update Low Stock Alerts on Home Page
+    // --- Low Stock Alerts ---
     const lowStockAlertsContainer = document.getElementById("low-stock-alerts");
     lowStockAlertsContainer.innerHTML = '';
     if (lowStockItems.length === 0) {
-        lowStockAlertsContainer.innerHTML = `<div class="bg-white rounded-2xl shadow-lg p-6 text-center border border-gray-100"><p class="text-gray-500">No low stock items. All good! 😊</p></div>`;
+        lowStockAlertsContainer.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center border border-gray-100">
+                <p class="text-gray-500">No low stock items. All good! 😊</p>
+            </div>
+        `;
     } else {
         lowStockItems.forEach(item => {
             lowStockAlertsContainer.innerHTML += `
@@ -1421,58 +1429,161 @@ function updateDashboard(data){
         });
     }
 
-    // Charts update
+    // --- Category & Chart Data ---
     const categoryLabels = Object.keys(categoryCounts);
     const categoryData = Object.values(categoryCounts);
 
-    // Bar Chart
+    const valuedItems = dataToDisplay
+        .map(d => ({ name: d.name, value: d.quantity * d.price }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 5);
+    const topValueLabels = valuedItems.map(i => i.name);
+    const topValueData = valuedItems.map(i => i.value);
+
+    // --- Filter Dropdown ---
+    const filterSelect = document.getElementById("category-filter");
+    if (filterSelect && filterSelect.options.length === 1) {
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            filterSelect.appendChild(option);
+        });
+
+        filterSelect.addEventListener('change', e => {
+            const selectedCategory = e.target.value;
+            if (selectedCategory === "all") {
+                updateDashboard(inventoryData);
+            } else {
+                const filteredData = inventoryData.filter(item => item.category === selectedCategory);
+                updateDashboard(filteredData);
+            }
+        });
+    }
+
+    // --- Recent Additions Feed ---
+    const recentAdditionsContainer = document.getElementById("recent-additions-feed");
+    if (recentAdditionsContainer) {
+        recentAdditionsContainer.innerHTML = '';
+        const sortedByDate = [...dataToDisplay].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        const recentItems = sortedByDate.slice(0, 5);
+
+        if (recentItems.length === 0) {
+            recentAdditionsContainer.innerHTML = `<p class="text-gray-500 text-center">No recent additions.</p>`;
+        } else {
+            recentItems.forEach(item => {
+                const itemDate = new Date(item.timestamp).toLocaleDateString();
+                recentAdditionsContainer.innerHTML += `
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <p class="font-semibold text-gray-800">${item.name}</p>
+                            <p class="text-sm text-gray-500">Added: ${item.quantity} units</p>
+                        </div>
+                        <span class="text-xs text-gray-400">${itemDate}</span>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    // --- Charts ---
+    const chartColors = ['#6c757d', '#6a9955', '#c97f47', '#5e7090', '#d4b28c', '#a15c54', '#8b9b7e', '#a88981', '#546e7a', '#9e8a5b'];
+
+    // Category Bar Chart
     const ctxBar = document.getElementById("category-bar-chart").getContext("2d");
-    if(categoryBarChart) categoryBarChart.destroy();
+    if (categoryBarChart) categoryBarChart.destroy();
     categoryBarChart = new Chart(ctxBar, {
         type: 'bar',
-        data: { labels: categoryLabels, datasets: [{ label: 'Quantity', data: categoryData, backgroundColor: '#0ea5e9' }] },
-        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-    });
-
-    // Pie Chart
-    const ctxPie = document.getElementById("category-pie-chart").getContext("2d");
-    if(categoryPieChart) categoryPieChart.destroy();
-    categoryPieChart = new Chart(ctxPie, {
-        type: 'pie',
-        data: { labels: categoryLabels, datasets: [{ data: categoryData, backgroundColor: ['#0ea5e9', '#38bdf8', '#7dd3fc', '#bae6fd', '#e0f2fe'] }] },
-        options: { responsive: true }
-    });
-    
-    // Low Stock Chart (Horizontal Bar)
-    const ctxLowStock = document.getElementById("low-stock-chart").getContext("2d");
-    if(lowStockChart) lowStockChart.destroy();
-    const lowStockLabels = lowStockItems.map(item => item.name);
-    const lowStockQuantities = lowStockItems.map(item => item.quantity);
-    lowStockChart = new Chart(ctxLowStock, {
-        type: 'bar',
         data: {
-            labels: lowStockLabels,
+            labels: categoryLabels,
             datasets: [{
                 label: 'Quantity',
-                data: lowStockQuantities,
-                backgroundColor: '#dc2626',
-                borderColor: '#b91c1c',
+                data: categoryData,
+                backgroundColor: categoryLabels.map((_, i) => chartColors[i % chartColors.length]),
+                borderColor: categoryLabels.map((_, i) => chartColors[i % chartColors.length]),
                 borderWidth: 1
             }]
         },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                x: { beginAtZero: true },
-                y: { beginAtZero: true }
-            }
-        }
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } } }
     });
+
+    // Category Pie Chart
+    const ctxPie = document.getElementById("category-pie-chart").getContext("2d");
+    if (categoryPieChart) categoryPieChart.destroy();
+    categoryPieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                data: categoryData,
+                backgroundColor: categoryLabels.map((_, i) => chartColors[i % chartColors.length]),
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    // Low Stock Chart
+    const ctxLowStock = document.getElementById("low-stock-chart").getContext("2d");
+    if (lowStockChart) lowStockChart.destroy();
+    lowStockChart = new Chart(ctxLowStock, {
+        type: 'bar',
+        data: {
+            labels: lowStockItems.map(i => i.name),
+            datasets: [{ label: 'Quantity', data: lowStockItems.map(i => i.quantity), backgroundColor: '#dc2626', borderColor: '#b91c1c', borderWidth: 1 }]
+        },
+        options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true }, y: { beginAtZero: true } } }
+    });
+
+    // Top 5 Most Valuable Items Chart
+    const ctxTopValue = document.getElementById("top-value-chart").getContext("2d");
+if (topValueChart) topValueChart.destroy();
+
+topValueChart = new Chart(ctxTopValue, {
+    type: 'bar',
+    data: {
+        labels: topValueLabels,
+        datasets: [{
+            label: 'Total Value ($)',
+            data: topValueData,
+            backgroundColor: [
+                '#38bdf8', // blue
+                '#f87171', // red
+                '#4ade80', // green
+                '#facc15', // yellow
+                '#a78bfa', // purple
+                '#fb923c'  // orange
+            ],
+            borderColor: [
+                '#0ea5e9',
+                '#ef4444',
+                '#22c55e',
+                '#eab308',
+                '#8b5cf6',
+                '#f97316'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                title: { display: true, text: 'Total Value ($)' }
+            },
+            y: { beginAtZero: true }
+        }
+    }
+});
+
 }
+
 
 function updateActivityFeed(recentActivity) {
     const activityFeedList = document.getElementById("activity-feed");
@@ -1482,7 +1593,6 @@ function updateActivityFeed(recentActivity) {
         activityFeedList.innerHTML += `<li class="text-gray-600"><strong>[${time} by ${activity.user}]</strong> ${activity.action}: ${activity.details}</li>`;
     });
 }
-
 // Universal CSV Export Function
 function exportToCsv(filename, data) {
     if (!data || data.length === 0) {
